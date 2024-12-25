@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./db_data:/app/db_data # Persist SQLite database data
+    depends_on:
+      - db
+    environment:
+      - DATABASE_PATH=/app/db_data/wishes.db # Path to the SQLite database
+
+  db:
+    image: nouchka/sqlite3:latest
+    volumes:
+      - ./db_data:/db_data # Persist database files
+    entrypoint: >
+      /bin/sh -c "sqlite3 /db_data/wishes.db 'CREATE TABLE IF NOT EXISTS wishes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, message TEXT NOT NULL);' && tail -f /dev/null"
+    restart: "always"
+
+volumes:
+  db_data:

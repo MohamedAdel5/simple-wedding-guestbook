@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Guest Book</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fef6e4, #fff9f1); /* Light creamy gold gradient */
+            color: #4a4a4a;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #d8b15c; /* Golden color for the heading */
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Light shadow for depth */
+        }
+
+        /* Form Styles */
+        form {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Subtle shadow for the form */
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #e1d1a7; /* Soft golden border */
+        }
+
+        label {
+            font-size: 1.1rem;
+            color: #333;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e2d4b3; /* Light golden beige border */
+            margin-bottom: 20px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #f9f7f1; /* Light cream background */
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2rem;
+            background-color: #d8b15c; /* Golden button */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow effect */
+        }
+
+        button:hover {
+            background-color: #c29e53; /* Slightly darker gold for hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Darker shadow on hover */
+        }
+
+        button:active {
+            background-color: #a88e45; /* Even darker gold for active */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Stronger shadow on click */
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            form {
+                padding: 20px;
+            }
+
+            button {
+                font-size: 1rem;
+            }
+        }
+
+        /* Success and Error Styles */
+        .success-message {
+            color: #4CAF50;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wedding Guest Book</h1>
+    <form id="wishForm">
+        <label for="name">Your Lovely Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+        <label for="wish">Please share your warm wishes, thoughts, or anything you'd love to say as we celebrate this special day together!:</label>
+        <textarea id="wish" name="wish" placeholder="Write your wedding wish" required></textarea>
+
+        <button type="submit">Submit Wish</button>
+    </form>
+
+    <div id="responseMessage"></div>
+
+    <script>
+        // Function to handle the form submission
+        document.getElementById('wishForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const wish = document.getElementById('wish').value;
+            const responseMessage = document.getElementById('responseMessage');
+
+            if (name && wish) {
+                fetch('/submit-wish', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name, wish: wish })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    responseMessage.textContent = data.message || 'Wish submitted successfully!';
+                    responseMessage.className = 'success-message';
+                    // Reset the form after submission
+                    document.getElementById('wishForm').reset();
+                })
+                .catch(error => {
+                    console.error('Error submitting wish:', error);
+                    responseMessage.textContent = 'There was an error submitting your wish.';
+                    responseMessage.className = 'error-message';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
