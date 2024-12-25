@@ -5,22 +5,33 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=${DATABASE_URL} # Set the DB URL to connect to the Postgres container
     ports:
       - "3000:3000"
-    volumes:
-      - ./db_data:/app/db_data # Persist SQLite database data
     depends_on:
       - db
-    environment:
-      - DATABASE_PATH=/app/db_data/wishes.db # Path to the SQLite database
-
+    networks:
+      - wedding_network
+  
   db:
-    image: nouchka/sqlite3:latest
+    image: postgres:13 # Use the official PostgreSQL image
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secretpassword
+      - POSTGRES_DB=wedding_db
     volumes:
-      - ./db_data:/db_data # Persist database files
-    entrypoint: >
-      /bin/sh -c "sqlite3 /db_data/wishes.db 'CREATE TABLE IF NOT EXISTS wishes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, message TEXT NOT NULL);' && tail -f /dev/null"
-    restart: "always"
+      - postgres_data:/var/lib/postgresql/data # Volume to persist database data
+    ports:
+      - "5432:5432"
+    networks:
+      - wedding_network
+
+
+networks:
+  wedding_network:
+    driver: bridge
 
 volumes:
-  db_data:
+  postgres_data:
+    driver: local
